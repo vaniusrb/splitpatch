@@ -26,7 +26,7 @@
 PROGRAM = "splitpatch"
 MYVERSION = 1.0
 LICENSE = "GPL-2+"  # See official acronyms: https://spdx.org/licenses/
-AUTHOR  = "Peter Hutterer <peter.hutterer@who-t.net>"
+HOMEPAGE = "https://github.com/jaalto/splitpatch"
 
 #       Splitpatch is a simple script to split a patch up into
 #       multiple patch files. If the --hunks option is provided on the
@@ -181,11 +181,19 @@ DESCRIPTION
     of changes. See e.g. combinediff(1) from patchutils package.
 
     Note: only patches in unified format are recognized.
+
+AUTHORS
+
+    Peter Hutterer (orig. Author) <peter.hutterer@who-t.net>
+    Benjamin Close (orig. Author) <Benjamin.Close@clearchain.com>
+    Jari Aalto (Maintainer) <jari.aalto@cante.net>"
+
+    Homepage: #{HOMEPAGE}
 EOF
 end
 
 def version
-  puts "#{MYVERSION} #{LICENSE} #{AUTHOR}"
+  puts "#{MYVERSION} #{LICENSE} #{HOMEPAGE}"
 end
 
 ########################     MAIN     ########################
