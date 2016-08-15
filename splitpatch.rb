@@ -75,7 +75,7 @@ class Splitter
     def splitByFile
         legacy = false
         outfile = nil
-        stream = open(@filename)
+        stream = open(@filename, 'rb')
         until (stream.eof?)
             line = stream.readline
 
@@ -111,7 +111,7 @@ class Splitter
     def splitByHunk
         legacy = false
         outfile = nil
-        stream = open(@filename)
+        stream = open(@filename, 'rb')
         filename = ""
         counter = 0
         header = ""
