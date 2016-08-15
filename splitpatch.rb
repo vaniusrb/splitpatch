@@ -196,36 +196,57 @@ def version
   puts "#{MYVERSION} #{LICENSE} #{HOMEPAGE}"
 end
 
-########################     MAIN     ########################
+def parsedOptions
+    if ARGV.length < 1 or ARGV.length > 2
+        puts "ERROR: missing argument. See --help."
+        exit 1
+    end
 
-if ARGV.length < 1 or ARGV.length > 2
-    puts "ERROR: missing argument. See --help."
-    exit 1
-else
+    opts = {}
+
     opt = ARGV[0]
-    if /^-h$|--help/.match(opt)
-        help
-        exit 0
-    elsif /^-H$|--hunks?/.match(opt)
-        hunk = 1
-    elsif /^-V$|--version/.match(opt)
-        version
-        exit 0
-    elsif /^-/.match(opt)
+    case opt
+    when /^-h$/, /--help/
+        opts[:help] = true
+    when /^-H$/, /--hunks?/
+        opts[:hunk] = true
+    when /^-V$/, /--version/
+        opts[:version] = true
+    when /^-/
         puts "ERROR: Unknown option: #{opt}. See --help."
         exit 1
-        end
-    file = ARGV[-1]
-    s = Splitter.new(file)
-    if s.validFile?
-        if hunk
-            s.splitByHunk
-        else
-            s.splitByFile
-        end
+    end
+
+    opts[:file] = ARGV[-1]
+
+    return opts
+end
+
+def main
+    opts = parsedOptions
+
+    if opts[:help]
+        help
+	exit
+    end
+
+    if opts[:version]
+        version
+	exit
+    end
+
+    s = Splitter.new(opts[:file])
+    if !s.validFile?
+        puts "File does not exist or is not readable: #{opts[:file]}"
+    end
+
+    if opts[:hunk]
+        s.splitByHunk
     else
-        puts "File does not exist or is not readable: #{file}"
+        s.splitByFile
     end
 end
+
+main
 
 # End of file
