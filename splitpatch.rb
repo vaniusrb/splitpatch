@@ -65,7 +65,7 @@ class Splitter
         tokens = tokens[1].split(":")
         tokens = tokens[0].split("/")
         if @fullname
-            return tokens.join('-')
+            return tokens.reject!(&:empty?).join('-')
         else
             return tokens[-1]
         end
