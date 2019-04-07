@@ -60,6 +60,15 @@ class Splitter
         return open(filename, "w")
     end
 
+    def getFilenameByHeader(header)
+      filename = getFilename(header[0])
+      if (@fullname && filename == 'dev-null') ||
+             (! @fullname && filename == 'null')
+	filename = getFilename(header[1])
+      end
+      filename
+    end
+
     def getFilename(line)
         tokens = line.split(" ")
         tokens = tokens[1].split(":")
@@ -96,10 +105,13 @@ class Splitter
                     outfile.close_write
                 end
                 #find filename
-                filename = getFilename(line)
+                # next line is header too
+                header = [ line, stream.readline ]
+                filename = getFilenameByHeader(header)
                 filename << ".patch"
+
                 outfile = createFile(filename)
-                outfile.write(line)
+                outfile.write(header.join(''))
             else
                 if outfile
                     outfile.write(line)
@@ -114,7 +126,7 @@ class Splitter
         stream = open(@filename, 'rb')
         filename = ""
         counter = 0
-        header = ""
+        header = []
         until (stream.eof?)
             line = stream.readline
 
@@ -124,7 +136,7 @@ class Splitter
                 # drop into "legacy mode"
                 legacy = true
                 filename = getFilename(line)
-                header = line
+                header << line
                 # remaining 3 lines of header
                 for i in 0..2
                     line = stream.readline
@@ -133,11 +145,9 @@ class Splitter
                 counter = 0
             elsif (line =~ /--- .*/) == 0 and not legacy
                 #find filename
-                filename = getFilename(line)
-                header = line
                 # next line is header too
-                line = stream.readline
-                header << line
+                header = [ line, stream.readline ]
+                filename = getFilenameByHeader(header)
                 counter = 0
             elsif (line =~ /@@ .* @@/) == 0
                 if (outfile) 
@@ -149,7 +159,7 @@ class Splitter
                 outfile = createFile(hunkfilename)
                 counter += 1
 
-                outfile.write(header)
+                outfile.write(header.join(''))
                 outfile.write(line)
             else
                 if outfile
