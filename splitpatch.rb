@@ -212,6 +212,8 @@ def parsedOptions
         opts[:hunk] = true
     when /^-V$/, /--version/
         opts[:version] = true
+    when /^-f$/, /--fullname/
+        opts[:fullname] = true
     when /^-/
         puts "ERROR: Unknown option: #{opt}. See --help."
         exit 1
@@ -236,6 +238,8 @@ def main
     end
 
     s = Splitter.new(opts[:file])
+    s.fullname(true) if opts[:fullname]
+
     if !s.validFile?
         puts "File does not exist or is not readable: #{opts[:file]}"
     end
