@@ -64,6 +64,10 @@ hunk-by-hunk basis using a tool like interdiff(1) from the patchutils package.
 
 Split patch by hunks instead of the default: by file.
 
+=item B<-f, --fullname>
+
+Use the full path of filenames to determine the patch filename.
+
 =item B<-h, --help>
 
 Display help and exit
