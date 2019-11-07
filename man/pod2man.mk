@@ -39,9 +39,9 @@ MANSECT		?= 1
 
 DATE_FMT = %Y-%m-%d
 ifdef SOURCE_DATE_EPOCH
-PODCENTER	?= $$(shell date -u -d "@$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)" 2>/dev/null || date -u -r "$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)" 2>/dev/null || date -u "+$(DATE_FMT)")
+PODCENTER	?= $(shell date -u -d "@$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)" 2>/dev/null || date -u -r "$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)" 2>/dev/null || date -u "+$(DATE_FMT)")
 else
-PODCENTER	?= $$(date "$(DATE_FMT)")
+PODCENTER	?= $(date "$(DATE_FMT)")
 endif
 
 # Directories
