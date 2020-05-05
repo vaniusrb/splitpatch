@@ -24,7 +24,7 @@
 #  Description
 #
 PROGRAM = "splitpatch"
-MYVERSION = 1.0
+MYVERSION = 1.1
 LICENSE = "GPL-2+"  # See official acronyms: https://spdx.org/licenses/
 HOMEPAGE = "https://github.com/jaalto/splitpatch"
 
@@ -33,7 +33,8 @@ HOMEPAGE = "https://github.com/jaalto/splitpatch"
 #       command line, each hunk gets its own patchfile.
 
 class Splitter
-    def initialize(file)
+    def initialize(file, encode)
+       @encode = encode
        @filename = file
        @fullname = false
     end
@@ -80,13 +81,13 @@ class Splitter
         end
     end
 
-    # Split the patchfile by files 
+    # Split the patchfile by files
     def splitByFile
         legacy = false
         outfile = nil
         stream = open(@filename, 'rb')
         until (stream.eof?)
-            line = stream.readline
+            line = stream.readline.encode("UTF-8", @encode)
 
             # we need to create a new file
             if (line =~ /^Index: .*/) == 0
@@ -101,7 +102,7 @@ class Splitter
                 outfile = createFile(filename)
                 outfile.write(line)
             elsif (line =~ /--- .*/) == 0 and not legacy
-                if (outfile) 
+                if (outfile)
                     outfile.close_write
                 end
                 #find filename
@@ -128,7 +129,7 @@ class Splitter
         counter = 0
         header = []
         until (stream.eof?)
-            line = stream.readline
+            line = stream.readline.encode("UTF-8", @encode)
 
             # we need to create a new file
             if (line =~ /^Index: .*/) == 0
@@ -150,7 +151,7 @@ class Splitter
                 filename = getFilenameByHeader(header)
                 counter = 0
             elsif (line =~ /@@ .* @@/) == 0
-                if (outfile) 
+                if (outfile)
                     outfile.close_write
                 end
 
@@ -180,6 +181,7 @@ OPTIONS
     -h,--help
     -H,--hunk
     -V,--version
+    -e={encode},--encode={encode} (default is UTF-8)
 
 DESCRIPTION
 
@@ -207,29 +209,34 @@ def version
 end
 
 def parsedOptions
-    if ARGV.length < 1 or ARGV.length > 2
+    if ARGV.length < 1
         puts "ERROR: missing argument. See --help."
         exit 1
     end
 
-    opts = {}
+    opts = {
+        encode: "UTF-8"
+    }
 
-    opt = ARGV[0]
-    case opt
-    when /^-h$/, /--help/
-        opts[:help] = true
-    when /^-H$/, /--hunks?/
-        opts[:hunk] = true
-    when /^-V$/, /--version/
-        opts[:version] = true
-    when /^-f$/, /--fullname/
-        opts[:fullname] = true
-    when /^-/
-        puts "ERROR: Unknown option: #{opt}. See --help."
-        exit 1
+    ARGV.each do |opt|
+        case opt
+        when /^-h$/, /--help/
+            opts[:help] = true
+        when /^-H$/, /--hunks?/
+            opts[:hunk] = true
+        when /^-V$/, /--version/
+            opts[:version] = true
+        when /^-f$/, /--fullname/
+            opts[:fullname] = true
+        when /^-e=(.+?)$/, /^--encode=(.+?)$/
+            opts[:encode] = $~[1]
+        when /^-/
+            puts "ERROR: Unknown option: #{opt}. See --help."
+            exit 1
+        else
+            opts[:file] = opt
+        end
     end
-
-    opts[:file] = ARGV[-1]
 
     return opts
 end
@@ -247,7 +254,7 @@ def main
 	exit
     end
 
-    s = Splitter.new(opts[:file])
+    s = Splitter.new(opts[:file], opts[:encode])
     s.fullname(true) if opts[:fullname]
 
     if !s.validFile?
