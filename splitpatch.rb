@@ -181,7 +181,7 @@ OPTIONS
     -h,--help
     -H,--hunk
     -V,--version
-    -e={encode},--encode={encode} (default is UTF-8)
+    -e=ENCODING,--encode=ENCODING (UTF-8 default)
 
 DESCRIPTION
 
@@ -238,6 +238,11 @@ def parsedOptions
         end
     end
 
+    if opts[:file].nil?
+        puts "ERROR: missing patch argument. See --help."
+        exit 1
+    end
+
     return opts
 end
 
@@ -246,12 +251,12 @@ def main
 
     if opts[:help]
         help
-	exit
+	    exit
     end
 
     if opts[:version]
         version
-	exit
+	    exit
     end
 
     s = Splitter.new(opts[:file], opts[:encode])
@@ -268,6 +273,9 @@ def main
     end
 end
 
-main
+# Only run if the script was the main, not loaded or required
+if __FILE__ == $0
+    main
+end
 
 # End of file
